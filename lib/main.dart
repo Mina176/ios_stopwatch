@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ios_stopwatch/laps_record.dart';
 import 'package:ios_stopwatch/stop_watch_body.dart';
 
 void main() {

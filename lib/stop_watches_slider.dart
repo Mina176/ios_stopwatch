@@ -17,7 +17,7 @@ class _StopWatchesSliderState extends State<StopWatchesSlider> {
     return Column(
       children: [
         SizedBox(
-          height: 500,
+          height: MediaQuery.of(context).size.height * 0.4,
           child: PageView(
             onPageChanged: (value) {
               setState(() {

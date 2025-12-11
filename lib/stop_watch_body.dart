@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:ios_stopwatch/control_button.dart';
-import 'package:ios_stopwatch/stop_watch_text.dart';
 import 'package:ios_stopwatch/stop_watches_slider.dart';
 
 class StopWatchBody extends StatefulWidget {
