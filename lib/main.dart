@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ios_stopwatch/laps_record.dart';
 import 'package:ios_stopwatch/stop_watch_body.dart';
 
 void main() {
@@ -13,7 +14,10 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
-      home: StopWatch(),
+      home: Padding(
+        padding: const EdgeInsets.all(16),
+        child: StopWatch(),
+      ),
     );
   }
 }
