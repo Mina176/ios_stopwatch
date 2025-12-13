@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:ios_stopwatch/control_button.dart';
+import 'package:ios_stopwatch/stop_watch_analog.dart';
+import 'package:ios_stopwatch/stop_watch_text.dart';
 import 'package:ios_stopwatch/stop_watches_slider.dart';
 
 class StopWatchBody extends StatefulWidget {
@@ -32,52 +34,92 @@ class _StopWatchBodyState extends State<StopWatchBody>
   }
 
   List<Duration> lapTimes = [];
+  int currentPage = 0;
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
       physics: NeverScrollableScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
-          child: Column(
+          child: Stack(
             children: [
-              StopWatchesSlider(
-                elapsed: elapsed,
+              SizedBox(height: 32),
+              StopWatchesSlider(elapsed: elapsed),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.5,
+                child: PageView(
+                  onPageChanged: (value) {
+                    setState(() {
+                      currentPage = value;
+                    });
+                  },
+                  children: [
+                    Center(child: TextStopWatch(elapsed: elapsed)),
+                    AnalogStopWatch(elapsed: elapsed),
+                  ],
+                ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ControlButton(
-                    label: _ticker.isActive ? 'Lap' : 'Reset',
-                    onTap: () {
-                      setState(() {
-                        if (_ticker.isActive) {
-                          lapTimes.add(elapsed);
-                        } else {
-                          lapTimes.clear();
-                          _ticker.stop();
-                          elapsed = Duration.zero;
-                          _baseElapsed = Duration.zero;
-                        }
-                      });
-                    },
-                    color: Colors.grey[800]!,
+              Positioned(
+                bottom: 48,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    2,
+                    (index) => Container(
+                      margin: EdgeInsets.all(6),
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color:
+                            currentPage == index ? Colors.white : Colors.grey,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
-                  ControlButton(
-                    label: _ticker.isActive ? 'Stop' : 'Start',
-                    onTap: () {
-                      setState(() {
-                        if (_ticker.isActive) {
-                          _ticker.stop();
-                          _baseElapsed = elapsed;
-                        } else {
-                          _ticker.start();
-                          lapTimes.add(elapsed);
-                        }
-                      });
-                    },
-                    color: _ticker.isActive ? Colors.red : Colors.green,
-                  ),
-                ],
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ControlButton(
+                      label: _ticker.isActive ? 'Lap' : 'Reset',
+                      onTap: () {
+                        setState(() {
+                          if (_ticker.isActive) {
+                            lapTimes.add(elapsed);
+                          } else {
+                            lapTimes.clear();
+                            _ticker.stop();
+                            elapsed = Duration.zero;
+                            _baseElapsed = Duration.zero;
+                          }
+                        });
+                      },
+                      color: Colors.grey[800]!,
+                    ),
+                    ControlButton(
+                      label: _ticker.isActive ? 'Stop' : 'Start',
+                      onTap: () {
+                        setState(() {
+                          if (_ticker.isActive) {
+                            _ticker.stop();
+                            _baseElapsed = elapsed;
+                          } else {
+                            _ticker.start();
+                            lapTimes.add(elapsed);
+                          }
+                        });
+                      },
+                      color: _ticker.isActive ? Colors.red : Colors.green,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

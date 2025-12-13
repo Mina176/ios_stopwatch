@@ -1,33 +1,96 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:ios_stopwatch/stop_watch_text.dart';
 
-class StopWatchAnalog extends StatelessWidget {
-  const StopWatchAnalog({super.key, required this.elapsed});
+class AnalogStopWatch extends StatelessWidget {
+  const AnalogStopWatch({super.key, required this.elapsed});
   final Duration elapsed;
-
   @override
   Widget build(BuildContext context) {
     final radius = MediaQuery.of(context).size.width / 2 - 68;
     return Stack(
       children: [
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.orange, width: 2),
-          ),
-        ),
+        for (int i = 0; i < 60; i++)
+          Positioned(
+              left: radius * 1.315,
+              top: radius,
+              child: CLockMarkers(seconds: i, radius: radius)),
+        for (int i = 5; i <= 60; i += 5)
+          Positioned(
+              left: radius * 1.315,
+              top: radius,
+              child: ClockMarkersText(value: i, maxValue: 60, radius: radius)),
         Positioned(
-          left: radius * 1.35,
+          left: radius * 1.315,
           top: radius,
           child: Clockhand(
-            handThickness: 2,
-            handLength: radius,
-            color: Colors.orange,
-            rotationZAngle: pi + (2 * pi / 6000) * elapsed.inMilliseconds,
-          ),
+              handThickness: 2,
+              handLength: radius,
+              color: Colors.orange,
+              rotationZAngle: pi + (2 * pi / 60000) * elapsed.inMilliseconds),
+        ),
+        Positioned(
+          left: radius,
+          top: radius * 1.25,
+          child: TextStopWatch(size: 24, elapsed: elapsed),
         ),
       ],
+    );
+  }
+}
+
+class ClockMarkersText extends StatelessWidget {
+  const ClockMarkersText(
+      {super.key,
+      required this.value,
+      required this.maxValue,
+      required this.radius});
+  final int value;
+  final int maxValue;
+  final double radius;
+  @override
+  Widget build(BuildContext context) {
+    final width = 40.0;
+    final height = 30.0;
+    return Transform(
+      transform: Matrix4.identity()
+        ..translate(-width / 2, -height / 2, 0.0)
+        ..rotateZ(pi + 2 * pi * (value / maxValue))
+        ..translate(0.0, radius - 30, 0.0)
+        ..rotateZ(pi - 2 * pi * (value / maxValue)),
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Text(
+          style: TextStyle(color: Colors.white, fontSize: 24),
+          '$value',
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+
+class CLockMarkers extends StatelessWidget {
+  const CLockMarkers({super.key, required this.seconds, required this.radius});
+  final int seconds;
+  final double radius;
+  @override
+  Widget build(BuildContext context) {
+    final color = seconds % 5 == 0 ? Colors.white : Colors.grey[700];
+    const width = 5.0;
+    const height = 5;
+    return Transform(
+      alignment: Alignment.center,
+      transform: Matrix4.identity()
+        ..translate(-width / 2, -height / 2, 0.0)
+        ..rotateZ(2 * pi * (seconds / 60))
+        ..translate(0.0 / 2, radius - height / 2, 0.0),
+      child: Container(
+        color: color,
+        height: 10,
+        width: 3,
+      ),
     );
   }
 }
