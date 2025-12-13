@@ -10,11 +10,14 @@ class TextStopWatch extends StatelessWidget {
   final double size;
   String twoDigits(int n) => n.toString().padLeft(2, '0');
   String formattedTime() {
+    final hours = twoDigits(elapsed.inHours.remainder(60));
     final minutes = twoDigits(elapsed.inMinutes.remainder(60));
     final seconds = twoDigits(elapsed.inSeconds.remainder(60));
     final milliseconds =
         (elapsed.inMilliseconds % 1000 ~/ 10).toString().padLeft(2, '0');
-    return '$minutes:$seconds.$milliseconds';
+    return hours == '00'
+        ? '$minutes:$seconds.$milliseconds'
+        : '$hours:$minutes:$seconds.$milliseconds';
   }
 
   @override
