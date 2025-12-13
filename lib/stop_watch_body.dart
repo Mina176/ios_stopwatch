@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:ios_stopwatch/control_button.dart';
+import 'package:ios_stopwatch/methods.dart';
 import 'package:ios_stopwatch/stop_watch_analog.dart';
 import 'package:ios_stopwatch/stop_watch_text.dart';
-import 'package:ios_stopwatch/stop_watches_slider.dart';
 
 class StopWatchBody extends StatefulWidget {
   const StopWatchBody({super.key});
@@ -14,14 +14,13 @@ class StopWatchBody extends StatefulWidget {
 
 class _StopWatchBodyState extends State<StopWatchBody>
     with SingleTickerProviderStateMixin {
-  Duration _baseElapsed = Duration.zero;
-  Duration elapsed = Duration.zero;
-  late final Ticker _ticker;
+  Duration _elapsed = Duration.zero;
+  late final Ticker ticker;
   @override
   void initState() {
-    _ticker = createTicker((elapsed) {
+    ticker = createTicker((elapsed) {
       setState(() {
-        this.elapsed = _baseElapsed + elapsed;
+        _elapsed = elapsed;
       });
     });
     super.initState();
@@ -29,12 +28,16 @@ class _StopWatchBodyState extends State<StopWatchBody>
 
   @override
   void dispose() {
-    _ticker.dispose();
+    ticker.dispose();
     super.dispose();
   }
 
   List<Duration> lapTimes = [];
   int currentPage = 0;
+
+  Duration get _currentLap =>
+      _elapsed - lapTimes.fold(Duration.zero, (t, d) => t + d);
+
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -43,19 +46,18 @@ class _StopWatchBodyState extends State<StopWatchBody>
         SliverToBoxAdapter(
           child: Stack(
             children: [
-              SizedBox(height: 32),
-              StopWatchesSlider(elapsed: elapsed),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.5,
                 child: PageView(
+                  physics: BouncingScrollPhysics(),
                   onPageChanged: (value) {
                     setState(() {
                       currentPage = value;
                     });
                   },
                   children: [
-                    Center(child: TextStopWatch(elapsed: elapsed)),
-                    AnalogStopWatch(elapsed: elapsed),
+                    Center(child: TextStopWatch(elapsed: _elapsed)),
+                    AnalogStopWatch(elapsed: _elapsed),
                   ],
                 ),
               ),
@@ -88,35 +90,32 @@ class _StopWatchBodyState extends State<StopWatchBody>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ControlButton(
-                      label: _ticker.isActive ? 'Lap' : 'Reset',
+                      label: ticker.isActive ? 'Lap' : 'Reset',
                       onTap: () {
                         setState(() {
-                          if (_ticker.isActive) {
-                            lapTimes.add(elapsed);
+                          if (ticker.isActive) {
+                            lapTimes.add(_currentLap);
                           } else {
                             lapTimes.clear();
-                            _ticker.stop();
-                            elapsed = Duration.zero;
-                            _baseElapsed = Duration.zero;
+                            ticker.stop();
+                            _elapsed = Duration.zero;
                           }
                         });
                       },
                       color: Colors.grey[800]!,
                     ),
                     ControlButton(
-                      label: _ticker.isActive ? 'Stop' : 'Start',
+                      label: ticker.isActive ? 'Stop' : 'Start',
                       onTap: () {
                         setState(() {
-                          if (_ticker.isActive) {
-                            _ticker.stop();
-                            _baseElapsed = elapsed;
+                          if (ticker.isActive) {
+                            ticker.stop();
                           } else {
-                            _ticker.start();
-                            lapTimes.add(elapsed);
+                            ticker.start();
                           }
                         });
                       },
-                      color: _ticker.isActive ? Colors.red : Colors.green,
+                      color: ticker.isActive ? Colors.red : Colors.green,
                     ),
                   ],
                 ),
@@ -127,29 +126,39 @@ class _StopWatchBodyState extends State<StopWatchBody>
         SliverFillRemaining(
           child: ListView.builder(
             physics: BouncingScrollPhysics(),
-            itemCount: lapTimes.length,
+            itemCount: _elapsed == Duration.zero ? 0 : lapTimes.length + 1,
             itemBuilder: (context, index) {
-              final reversedIndex = lapTimes.length - 1 - index;
-              final lapTime = reversedIndex == 0
-                  ? lapTimes[reversedIndex]
-                  : lapTimes[reversedIndex] - lapTimes[reversedIndex - 1];
+              final duration =
+                  index == 0 ? _currentLap : lapTimes[lapTimes.length - index];
+              final lapNumber = lapTimes.length - index + 1;
+
+              Color color = Colors.white;
+              if (lapTimes.length >= 2) {
+                final fastest = lapTimes.reduce((a, b) => a < b ? a : b);
+                final slowest = lapTimes.reduce((a, b) => a > b ? a : b);
+                if (duration == fastest) {
+                  color = Colors.green;
+                } else if (duration == slowest) {
+                  color = Colors.red;
+                }
+              }
               return Container(
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(color: Colors.grey.shade800),
                   ),
                 ),
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Lap ${reversedIndex + 1}',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+                      'Lap $lapNumber',
+                      style: TextStyle(fontSize: 18, color: color),
                     ),
                     Text(
-                      formatTime(lapTime),
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+                      formatTime(duration),
+                      style: TextStyle(fontSize: 18, color: color),
                     ),
                   ],
                 ),
@@ -159,14 +168,5 @@ class _StopWatchBodyState extends State<StopWatchBody>
         ),
       ],
     );
-  }
-
-  String formatTime(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final minutes = twoDigits(duration.inMinutes.remainder(60));
-    final seconds = twoDigits(duration.inSeconds.remainder(60));
-    final milliseconds =
-        (duration.inMilliseconds % 1000 ~/ 10).toString().padLeft(2, '0');
-    return '$minutes:$seconds.$milliseconds';
   }
 }

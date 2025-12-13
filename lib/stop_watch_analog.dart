@@ -10,11 +10,17 @@ class AnalogStopWatch extends StatelessWidget {
     final radius = MediaQuery.of(context).size.width / 2 - 68;
     return Stack(
       children: [
-        for (int i = 0; i < 60; i++)
+        for (int i = 0; i < 300; i++)
           Positioned(
-              left: radius * 1.315,
-              top: radius,
-              child: CLockMarkers(seconds: i, radius: radius)),
+            left: radius * 1.315,
+            top: radius,
+            child: CLockMarkers(
+              seconds: i,
+              radius: radius,
+              markerLength: i % 5 == 0 ? 10 : 10,
+              markerWidth: 2,
+            ),
+          ),
         for (int i = 5; i <= 60; i += 5)
           Positioned(
               left: radius * 1.315,
@@ -40,14 +46,17 @@ class AnalogStopWatch extends StatelessWidget {
 }
 
 class ClockMarkersText extends StatelessWidget {
-  const ClockMarkersText(
-      {super.key,
-      required this.value,
-      required this.maxValue,
-      required this.radius});
+  const ClockMarkersText({
+    super.key,
+    required this.value,
+    required this.maxValue,
+    required this.radius,
+    this.fontSize = 24,
+  });
   final int value;
   final int maxValue;
   final double radius;
+  final double fontSize;
   @override
   Widget build(BuildContext context) {
     final width = 40.0;
@@ -62,7 +71,7 @@ class ClockMarkersText extends StatelessWidget {
         width: width,
         height: height,
         child: Text(
-          style: TextStyle(color: Colors.white, fontSize: 24),
+          style: TextStyle(color: Colors.white, fontSize: fontSize),
           '$value',
           textAlign: TextAlign.center,
         ),
@@ -72,9 +81,17 @@ class ClockMarkersText extends StatelessWidget {
 }
 
 class CLockMarkers extends StatelessWidget {
-  const CLockMarkers({super.key, required this.seconds, required this.radius});
+  const CLockMarkers(
+      {super.key,
+      required this.seconds,
+      required this.radius,
+      required this.markerLength,
+      required this.markerWidth});
   final int seconds;
   final double radius;
+  final double markerLength;
+  final double markerWidth;
+
   @override
   Widget build(BuildContext context) {
     final color = seconds % 5 == 0 ? Colors.white : Colors.grey[700];
@@ -85,11 +102,11 @@ class CLockMarkers extends StatelessWidget {
       transform: Matrix4.identity()
         ..translate(-width / 2, -height / 2, 0.0)
         ..rotateZ(2 * pi * (seconds / 60))
-        ..translate(0.0 / 2, radius - height / 2, 0.0),
+        ..translate(0.0, radius - height / 2, 0.0),
       child: Container(
         color: color,
-        height: 10,
-        width: 3,
+        height: markerLength,
+        width: markerWidth,
       ),
     );
   }
