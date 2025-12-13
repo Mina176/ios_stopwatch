@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:ios_stopwatch/control_button.dart';
+import 'package:ios_stopwatch/widgets/control_button.dart';
 import 'package:ios_stopwatch/methods.dart';
 import 'package:ios_stopwatch/stop_watch_analog.dart';
-import 'package:ios_stopwatch/stop_watch_text.dart';
+import 'package:ios_stopwatch/widgets/stop_watch_text.dart';
 
 class StopWatchBody extends StatefulWidget {
   const StopWatchBody({super.key});
@@ -57,7 +57,10 @@ class _StopWatchBodyState extends State<StopWatchBody>
                   },
                   children: [
                     Center(child: TextStopWatch(elapsed: _elapsed)),
-                    AnalogStopWatch(elapsed: _elapsed),
+                    AnalogStopWatch(
+                      elapsed: _elapsed,
+                      currentLap: _currentLap,
+                    ),
                   ],
                 ),
               ),
