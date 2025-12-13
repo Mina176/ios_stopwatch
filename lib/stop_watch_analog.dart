@@ -32,7 +32,7 @@ class AnalogStopWatch extends StatelessWidget {
               top: radius,
               child: ClockMarkersText(value: i, maxValue: 60, radius: radius)),
         Positioned(
-          left: radius * 1.315,
+          left: radius * 1.305,
           top: radius,
           child: Clockhand(
               handThickness: 2,
@@ -42,7 +42,7 @@ class AnalogStopWatch extends StatelessWidget {
                   pi + (2 * pi / 60000) * currentLap.inMilliseconds),
         ),
         Positioned(
-          left: radius * 1.315,
+          left: radius * 1.305,
           top: radius,
           child: Clockhand(
               handThickness: 2,
@@ -53,10 +53,12 @@ class AnalogStopWatch extends StatelessWidget {
         Positioned(
           left: radius,
           top: radius * 1.25,
-          child: TextStopWatch(size: 24, elapsed: elapsed),
+          child: TextStopWatch(
+            size: 24,
+            elapsed: elapsed,
+          ),
         ),
       ],
     );
   }
 }
-
