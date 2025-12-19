@@ -15,14 +15,14 @@ class AnalogStopWatch extends StatelessWidget {
     final radius = MediaQuery.of(context).size.width / 2 - 68;
     return Stack(
       children: [
-        for (int i = 0; i < 300; i++)
+        for (int i = 0; i < 60; i++)
           Positioned(
             left: radius * 1.315,
             top: radius,
             child: CLockMarkers(
               seconds: i,
               radius: radius,
-              markerLength: i % 5 == 0 ? 10 : 10,
+              markerLength: i % 5 == 0 ? 10 : 8,
               markerWidth: 2,
             ),
           ),

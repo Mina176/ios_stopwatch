@@ -24,7 +24,10 @@ class CLockMarkers extends StatelessWidget {
       transform: Matrix4.identity()
         ..translate(-width / 2, -height / 2, 0.0)
         ..rotateZ(2 * pi * (seconds / 60))
-        ..translate(0.0, radius - height / 2, 0.0),
+        ..translate(
+            0.0,
+            seconds % 5 == 0 ? radius - height : radius - markerLength / 2,
+            0.0),
       child: Container(
         color: color,
         height: markerLength,
@@ -33,4 +36,3 @@ class CLockMarkers extends StatelessWidget {
     );
   }
 }
-

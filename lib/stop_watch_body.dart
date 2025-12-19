@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:ios_stopwatch/control_button.dart';
+import 'package:ios_stopwatch/control_buttons.dart';
 import 'package:ios_stopwatch/laps_record.dart';
 import 'package:ios_stopwatch/slider_index.dart';
 import 'package:ios_stopwatch/widgets/stop_watches_slider.dart';
@@ -14,13 +14,14 @@ class StopWatchBody extends StatefulWidget {
 
 class _StopWatchBodyState extends State<StopWatchBody>
     with SingleTickerProviderStateMixin {
+  Duration previousElapsed = Duration.zero;
   Duration elapsed = Duration.zero;
   late final Ticker ticker;
   @override
   void initState() {
     ticker = createTicker((elapsed) {
       setState(() {
-        this.elapsed = elapsed;
+        this.elapsed = previousElapsed + elapsed;
       });
     });
     super.initState();
@@ -70,6 +71,12 @@ class _StopWatchBodyState extends State<StopWatchBody>
                 onReset: () {
                   setState(() {
                     elapsed = Duration.zero;
+                    previousElapsed = Duration.zero;
+                  });
+                },
+                onStop: () {
+                  setState(() {
+                    previousElapsed = elapsed;
                   });
                 },
               ),

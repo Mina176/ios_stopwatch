@@ -3,13 +3,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:ios_stopwatch/widgets/control_button.dart';
 
 class ControlButtons extends StatefulWidget {
-  const ControlButtons({
+ const ControlButtons({
     super.key,
     required this.ticker,
     required this.elapsed,
     required this.currentLap,
     required this.lapTimes,
     this.onReset,
+    this.onStop,
   });
 
   final Ticker ticker;
@@ -17,6 +18,7 @@ class ControlButtons extends StatefulWidget {
   final Duration currentLap;
   final List<Duration> lapTimes;
   final VoidCallback? onReset;
+  final VoidCallback? onStop;
 
   @override
   State<ControlButtons> createState() => _ControlButtonsState();
@@ -49,6 +51,7 @@ class _ControlButtonsState extends State<ControlButtons> {
             setState(() {
               if (widget.ticker.isActive) {
                 widget.ticker.stop();
+                widget.onStop?.call();
               } else {
                 widget.ticker.start();
               }
